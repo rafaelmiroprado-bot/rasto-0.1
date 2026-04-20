@@ -1,5 +1,5 @@
 /**
- * Sharefy — scrapers.js
+ * StreamBR Finder — scrapers.js
  * Inspirado no Torrentio: APIs JSON confiáveis + sources de tracker.
  */
 
@@ -65,7 +65,7 @@ function buildStream(source, title, q, seeds, hash, size) {
   if (!h) return null;
 
   const q2    = q || quality(title) || "";
-  const name  = q2 ? `Sharefy ${q2}\n${source}` : `Sharefy\n${source}`;
+  const name  = q2 ? `StreamBR Finder ${q2}\n${source}` : `StreamBR Finder\n${source}`;
   const info  = [];
   if (title) info.push(`📄 ${title.length > 70 ? title.slice(0,67)+"…" : title}`);
   if (size)  info.push(`💾 ${size}`);
@@ -77,7 +77,7 @@ function buildStream(source, title, q, seeds, hash, size) {
     infoHash: h,
     sources:  TRACKERS.map(t => `tracker:${t}`).concat([`dht:${h}`]),
     behaviorHints: {
-      bingeGroup: `sharefy|${q2 || "unknown"}`,
+      bingeGroup: `streambr-finder|${q2 || "unknown"}`,
     },
   };
 }
@@ -279,7 +279,7 @@ async function scrapeAll(imdbId, isSeries, season, episode) {
     ? `${title} S${String(season).padStart(2,"0")}E${String(episode).padStart(2,"0")}`
     : `${title} ${year}`.trim();
 
-  console.log(`\n[Sharefy] Query: "${query}" (${imdbId})`);
+  console.log(`\n[StreamBR Finder] Query: "${query}" (${imdbId})`);
 
   const tasks = isSeries
     ? [ eztv(imdbId, season, episode), tpb(query), torrentsCsv(query), bitsearch(query), ext(query), x1337(query) ]
@@ -304,7 +304,7 @@ async function scrapeAll(imdbId, isSeries, season, episode) {
     return qa - qb;
   });
 
-  console.log(`[Sharefy] Total: ${unique.length} streams`);
+  console.log(`[StreamBR Finder] Total: ${unique.length} streams`);
   return unique;
 }
 

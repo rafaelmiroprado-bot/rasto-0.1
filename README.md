@@ -1,4 +1,4 @@
-# Sharefy — Stremio Addon
+# StreamBR Finder — Stremio Addon
 
 Addon que busca streams de múltiplas fontes para filmes e séries.
 

@@ -2,9 +2,9 @@ const { addonBuilder } = require("stremio-addon-sdk");
 const scrapers = require("./scrapers");
 
 const manifest = {
-  id: "community.sharefy.streams",
+  id: "community.streambr.finder",
   version: "1.0.6",
-  name: "Sharefy",
+  name: "StreamBR Finder",
   description: "Find streams from multiple sources.",
   logo:       "https://raw.githubusercontent.com/Stremio/stremio-brand/master/Logo/logo_symbol/logo_symbol_blue.png",
   catalogs: [],
@@ -20,7 +20,7 @@ const manifest = {
 const builder = new addonBuilder(manifest);
 
 builder.defineStreamHandler(async ({ type, id }) => {
-  console.log(`[Sharefy] request: ${type} ${id}`);
+  console.log(`[StreamBR Finder] request: ${type} ${id}`);
 
   try {
     const parts    = id.split(":");
@@ -46,10 +46,10 @@ builder.defineStreamHandler(async ({ type, id }) => {
         return out;
       });
 
-    console.log(`[Sharefy] returning ${streams.length} streams`);
+    console.log(`[StreamBR Finder] returning ${streams.length} streams`);
     return { streams };
   } catch (err) {
-    console.error(`[Sharefy] error:`, err.message);
+    console.error(`[StreamBR Finder] error:`, err.message);
     return { streams: [] };
   }
 });
