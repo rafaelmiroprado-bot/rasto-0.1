@@ -212,27 +212,6 @@ async function ext(query) {
   } catch (e) { console.warn(`[EXT] ${e.message}`); return []; }
 }
 
-async function knaben(query) {
-  try {
-    const { data } = await http.post("https://api.knaben.eu/v1", {
-      search_type: "torrent",
-      search_field: "title",
-      query,
-      size: 20,
-      from: 0,
-      orderBy: "seeders",
-      orderDirection: "desc",
-    });
-    if (!data?.hits?.length) return [];
-    const out = data.hits.slice(0,15).map(t => {
-      const h = validHash(t.hash) || hashFromMagnet(t.magnet);
-      return buildStream("Knaben", t.title, quality(t.title), t.seeders, h, formatSize(t.bytes));
-    }).filter(Boolean);
-    console.log(`[Knaben] ${out.length}`);
-    return out;
-  } catch (e) { console.warn(`[Knaben] ${e.message}`); return []; }
-}
-
 async function x1337(query) {
   const bases = [
     "https://www.1377x.to",
@@ -303,8 +282,8 @@ async function scrapeAll(imdbId, isSeries, season, episode) {
   console.log(`\n[Sharefy] Query: "${query}" (${imdbId})`);
 
   const tasks = isSeries
-    ? [ eztv(imdbId, season, episode), tpb(query), knaben(query), torrentsCsv(query), bitsearch(query), ext(query), x1337(query) ]
-    : [ yts(imdbId), tpb(query), knaben(query), torrentsCsv(query), bitsearch(query), ext(query), x1337(query) ];
+    ? [ eztv(imdbId, season, episode), tpb(query), torrentsCsv(query), bitsearch(query), ext(query), x1337(query) ]
+    : [ yts(imdbId), tpb(query), torrentsCsv(query), bitsearch(query), ext(query), x1337(query) ];
 
   const results = await Promise.allSettled(tasks);
   const all     = results.flatMap(r => r.status === "fulfilled" ? r.value : []);
