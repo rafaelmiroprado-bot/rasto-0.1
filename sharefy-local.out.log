@@ -1,0 +1,8 @@
+[Sharefy] running on port 7000
+[Sharefy] manifest: http://127.0.0.1:7000/manifest.json
+HTTP addon accessible at: http://127.0.0.1:7000/manifest.json
+[Sharefy] request: movie tt0468569
+
+[Sharefy] Query: "tt0468569" (tt0468569)
+[Sharefy] Total: 0 streams
+[Sharefy] returning 0 streams

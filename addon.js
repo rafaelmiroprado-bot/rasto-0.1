@@ -2,16 +2,15 @@ const { addonBuilder } = require("stremio-addon-sdk");
 const scrapers = require("./scrapers");
 
 const manifest = {
-  id: "br.stremio.rasto",
-  version: "1.0.0",
-  name: "Rasto",
-  description: "Rastre streams de múltiplas fontes para filmes e séries.",
-  logo: "https://i.imgur.com/p4MQHQV.png",
-  background: "https://i.imgur.com/p4MQHQV.png",
+  id: "community.sharefy.streams",
+  version: "1.0.6",
+  name: "Sharefy",
+  description: "Find streams from multiple sources.",
+  logo:       "https://raw.githubusercontent.com/Stremio/stremio-brand/master/Logo/logo_symbol/logo_symbol_blue.png",
+  catalogs: [],
   resources: ["stream"],
   types: ["movie", "series"],
   idPrefixes: ["tt"],
-  catalogs: [],
   behaviorHints: {
     configurable: false,
     configurationRequired: false,
@@ -21,42 +20,38 @@ const manifest = {
 const builder = new addonBuilder(manifest);
 
 builder.defineStreamHandler(async ({ type, id }) => {
-  console.log(`\n[Rasto] type=${type} id=${id}`);
+  console.log(`[Sharefy] request: ${type} ${id}`);
 
-  const parts   = id.split(":");
-  const imdbId  = parts[0];
-  const season  = parts[1] ? parseInt(parts[1]) : null;
-  const episode = parts[2] ? parseInt(parts[2]) : null;
-  const isSeries = type === "series" && season !== null;
-
-  let allStreams = [];
   try {
-    allStreams = await scrapers.scrapeAll(imdbId, isSeries, season, episode);
+    const parts    = id.split(":");
+    const imdbId   = parts[0];
+    const season   = parts[1] ? parseInt(parts[1]) : null;
+    const episode  = parts[2] ? parseInt(parts[2]) : null;
+    const isSeries = type === "series";
+
+    const raw = await scrapers.scrapeAll(imdbId, isSeries, season, episode);
+
+    // Only send what Stremio actually accepts
+    const streams = raw
+      .filter(s => s && (s.infoHash || s.url))
+      .map(s => {
+        const out = {
+          name:        s.name,
+          title:       s.title || s.description || s.name,
+          behaviorHints: s.behaviorHints || {},
+        };
+        if (s.infoHash) out.infoHash = s.infoHash;
+        if (s.url)      out.url      = s.url;
+        if (s.sources)  out.sources  = s.sources;
+        return out;
+      });
+
+    console.log(`[Sharefy] returning ${streams.length} streams`);
+    return { streams };
   } catch (err) {
-    console.error("[Rasto] Erro:", err.message);
+    console.error(`[Sharefy] error:`, err.message);
+    return { streams: [] };
   }
-
-  // Deduplicar por infoHash
-  const seen = new Set();
-  const unique = allStreams.filter((s) => {
-    if (!s.infoHash) return true;
-    const key = s.infoHash.toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  // Ordenar por qualidade > seeders
-  const qualityOrder = { "2160p": 0, "1080p": 1, "720p": 2, "480p": 3, "360p": 4 };
-  unique.sort((a, b) => {
-    const qa = qualityOrder[a._quality] ?? 9;
-    const qb = qualityOrder[b._quality] ?? 9;
-    if (qa !== qb) return qa - qb;
-    return (b._seeders || 0) - (a._seeders || 0);
-  });
-
-  console.log(`[Rasto] ${unique.length} streams encontrados`);
-  return { streams: unique };
 });
 
 module.exports = builder.getInterface();
